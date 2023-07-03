@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.3.6/dist/vuetify.min.js"></script>
+    <script src="./index.min.js"></script>
+    <style>
+      .v-sheet {
+        margin: 1em; padding: 1em;
+        overflow-x: scroll;
+      }
+    </style>
+  </head>
+  <body>
+  <div id="app">
+    <v-app>
+      <v-app-bar app
+        color="teal-darken-4"
+        image="https://picsum.photos/1920/1080?random"
+      >
+        <template v-slot:image>
+          <v-img
+            gradient="to top right, rgba(19,84,122,.8), rgba(128,208,199,.8)"
+          ></v-img>
+        </template>
+        <template v-slot:prepend>
+          <v-avatar color="grey" round class='d-none d-sm-flex'>
+            <v-icon v-if="!isLoggedIn">mdi-account-off</v-icon>
+            <v-img v-else :src="pictureUrl"></v-img>
+          </v-avatar>
+          <v-app-bar-nav-icon class='d-sm-none' @click="showRootDrawer = !showRootDrawer"></v-app-bar-nav-icon>
+        </template>
+        <v-app-bar-title class='d-none d-sm-flex'>Keycloak JS Simple</v-app-bar-title>
+        <v-spacer class="hidden-sm-and-down"></v-spacer>
+        <v-item-group>
+          <v-btn v-if="!isLoggedIn" @click="login">Login</v-btn>
+          <v-btn v-else @click="logout">Logout</v-btn>
+        </v-item-group>
+      </v-app-bar>
+      <v-main>
+        <v-sheet style="max-height: 50vh; overflow-y: scroll;">
+          <pre v-if="isLoggedIn">
+{{ tokens }}
+          </pre>
+          <p v-else><v-btn @click="login">Login</v-btn> to see your profile</p>
+        </v-sheet>
+        <v-sheet>
+          <dl>
+            <template v-for="(v, k) in urls" :key="k">
+              <p><strong>{{ k }}:</strong>&nbsp;<a :href="v">{{ v }}</a></p>
+            </template>
+          </dl>
+        </v-sheet>
+      </v-main>
+    </v-app>
+  </div>
+  </body>
+  <script>
+    const { createApp, ref, onMounted, computed, defineComponent } = Vue;
+    const { createVuetify } = Vuetify;
+    const vuetify = createVuetify()
+    const config = {
+      authServerUrl: 'http://localhost:3001',
+      realm: 'testing',
+      clientId: 'testing',
+    };
+    const kc = new keycloakjssimple.Keycloak(config);
+    let refreshTimerId = 0;
+
+    const App = defineComponent({
+      data: function() {
+        return {
+          tokens: {},
+        };
+      },
+      computed: {
+        isLoggedIn() {
+          return !!Object.keys(this.tokens).length;
+        },
+        urls() {
+          return {
+            login: kc.getLoginUrl(),
+            logout: kc.getLogoutUrl(),
+            register: kc.getRegisterUrl(),
+            account: kc.getAccountUrl(),
+            realm: kc.getRealmUrl(),
+          }
+        },
+        realmUrl() {
+          return kc.getRealmUrl();
+        },
+        pictureUrl() {
+          return this.tokens?.idTokenParsed?.picture;
+        }
+      },
+      methods: {
+        login() {
+          window.location = kc.getLoginUrl();
+        },
+        logout() {
+          window.location = kc.getLogoutUrl();
+        },
+        setTokens(tokens) {
+          console.log(tokens);
+          const { iatLocal } = tokens;
+          const { exp, iat } = tokens.accessTokenParsed;
+          const skew = iat - iatLocal;
+          const now = Math.floor(new Date().getTime()/1000);
+          const refreshAt = exp - iat - skew;
+          if(refreshAt <= 0) {
+            console.error(`Token expired [now=${now}, exp=${exp}, iat=${iat}]`);
+            this.clearTokens();
+            return;
+          }
+          if(skew) {
+            console.warn(`Auth server is ${skew} seconds in front of local`);
+          }
+          this.tokens = tokens;
+          console.log(`Setting refresh for ${refreshAt} seconds from now`)
+          clearTimeout(refreshTimerId);
+          refreshTimerId = setTimeout(() => this.refreshTokens(), refreshAt*1000);
+        },
+        clearTokens() {
+          clearTimeout(refreshTimerId);
+          this.tokens = {};
+        },
+        async refreshTokens() {
+          console.log('Refreshing tokens');
+          const tokens = await kc.tokenRefresh(this.tokens.refreshToken);
+          console.log('Refreshed OK');
+          this.setTokens(tokens);
+        }
+      },
+      async mounted() {
+        try {
+          const response = await kc.processCodeFlowCallbackUrl(window.location.href);
+          if(!response) {
+            return console.debug('Not a oAuth response');
+          }
+          this.setTokens(response);
+          window.history.replaceState(window.history.state, null, response.newUrl);
+        } catch(e) {
+          console.error('oAuth response processing failed', e);
+          if(e.newUrl) {
+            window.history.replaceState(window.history.state, null, e.newUrl);
+          }
+        }
+      }
+    });
+
+    const app = createApp(App)
+    .use(vuetify)
+    .mount('#app');
+
+  </script>
+</html>

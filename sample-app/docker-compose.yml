@@ -1,0 +1,67 @@
+x-postgres-env: &penv
+  ALLOW_EMPTY_PASSWORD: yes
+  POSTGRESQL_USERNAME: keycloak
+  POSTGRESQL_DATABASE: keycloak
+  PGPASSWORD: ${POSTGRESQL_PASSWORD:-password}
+x-keycloak-env: &kenv
+  KEYCLOAK_ADMIN_USER: admin
+  KEYCLOAK_ADMIN: admin
+  KEYCLOAK_ADMIN_PASSWORD: password
+  KEYCLOAK_DATABASE_NAME: keycloak
+  KEYCLOAK_DATABASE_USER: keycloak
+  KEYCLOAK_DATABASE_PASSWORD: password
+  KEYCLOAK_DATABASE_HOST: postgres
+  KEYCLOAK_HOST: keycloak
+  KEYCLOAK_HTTP_PORT: 3001
+  # KEYCLOAK_HTTPS_PORT: 3002
+  QUARKUS_HTTP_LIMITS_MAX_INITIAL_LINE_LENGTH: 8192
+  KEYCLOAK_EXTRA_ARGS: >
+    -Dquarkus.http.limits.max-initial-line-length=8092
+  KEYCLOAK_EXTRA_ARGS_PREPENDED: >
+    --spi-theme-static-max-age=-1
+    --spi-theme-cache-themes=false
+    --spi-theme-cache-templates=false
+version: "3"
+services:
+  postgres:
+    image: docker.io/bitnami/postgresql:15
+    environment:
+      <<: *penv
+    healthcheck:
+      test: ["CMD-SHELL", "psql -h localhost -U postgres -c 'select 1;'"]
+      interval: 5s
+      timeout: 2s
+      retries: 1
+      start_period: 2s
+  keycloak:
+    image: docker.io/bitnami/keycloak:latest
+    depends_on:
+      - postgres
+    environment:
+      <<: *kenv
+    ports:
+      - 3001:3001
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsSL localhost:$$KEYCLOAK_HTTP_PORT"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ./keycloak-init/:/keycloak-init/
+  keycloak_init:
+    image: docker.io/bitnami/keycloak:latest
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      <<: *kenv
+    volumes:
+      - ./keycloak-init/:/keycloak-init/
+    entrypoint: /keycloak-init/init.sh
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./:/usr/share/nginx/html
+    ports:
+      - "8080:80"

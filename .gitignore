@@ -1,0 +1,5 @@
+dist/
+node_modules/
+.npm
+.editorconfig
+sample-app/index.min.js

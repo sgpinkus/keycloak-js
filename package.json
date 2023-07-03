@@ -1,0 +1,45 @@
+{
+  "name": "keycloak-js-simple",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "_build-watch": "rollup -w --config rollup.config.mjs",
+    "_build": "rollup --config rollup.config.mjs",
+    "_build-tsc": "tsc",
+    "_build-tsc-watch": "tsc -w",
+    "build": "npm-run-all clean _build",
+    "clean": "rm -rf dist/*",
+    "dev": "npm-run-all clean -p _build-watch _build-tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "keycloak"
+  ],
+  "author": "sgpinkus",
+  "main": "dist/index.js",
+  "browser": "dist/index.min.js",
+  "license": "ISC",
+  "dependencies": {
+    "base64-js": "^1.5.1",
+    "dayjs": "^1.11.7",
+    "js-sha256": "^0.9.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.2",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-terser": "^0.4.3",
+    "@rollup/plugin-typescript": "^11.1.2",
+    "@types/node": "^18.11.18",
+    "@types/uuid": "^9.0.2",
+    "@typescript-eslint/eslint-plugin": "^5.8.1",
+    "@typescript-eslint/parser": "^5.8.1",
+    "eslint": "^8.31.0",
+    "nodemon": "^2.0.22",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^3.25.3",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.6.0",
+    "typescript": "^4.9.5"
+  }
+}
