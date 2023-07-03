@@ -12,7 +12,7 @@ export function generateRandomData(len: number) {
   }
   // fallback to Math random
   array = new Array(len);
-  for (var j = 0; j < array.length; j++) {
+  for (let j = 0; j < array.length; j++) {
     array[j] = Math.floor(256 * Math.random());
   }
   return array;
@@ -23,19 +23,19 @@ export function generateCodeVerifier(len: number) {
 }
 
 export function generateRandomString(len: number, alphabet: string){
-  var randomData = generateRandomData(len);
-  var chars = new Array(len);
-  for (var i = 0; i < len; i++) {
+  const randomData = generateRandomData(len);
+  const chars = new Array(len);
+  for (let i = 0; i < len; i++) {
     chars[i] = alphabet.charCodeAt(randomData[i] % alphabet.length);
   }
   return String.fromCharCode.apply(null, chars);
 }
 
 export function buildClaimsParameter(requestedAcr: string){
-  var claims = {
+  const claims = {
     id_token: {
-      acr: requestedAcr
-    }
+      acr: requestedAcr,
+    },
   };
   return JSON.stringify(claims);
 }
@@ -43,14 +43,15 @@ export function buildClaimsParameter(requestedAcr: string){
 export function generatePkceChallenge(pkceMethod: 'S256', codeVerifier: string) {
   switch (pkceMethod) {
     // The use of the "plain" method is considered insecure and therefore not supported.
-    case 'S256':
+    case 'S256': {
       // hash codeVerifier, then encode as url-safe base64 without padding
-      var hashBytes = new Uint8Array(sha256.arrayBuffer(codeVerifier));
-      var encodedHash = base64Js.fromByteArray(hashBytes)
+      const hashBytes = new Uint8Array(sha256.arrayBuffer(codeVerifier));
+      const encodedHash = base64Js.fromByteArray(hashBytes)
           .replace(/\+/g, '-')
           .replace(/\//g, '_')
-          .replace(/\=/g, '');
+          .replace(/=/g, '');
       return encodedHash;
+    }
     default:
       throw 'Invalid value for pkceMethod';
   }

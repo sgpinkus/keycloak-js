@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { buildClaimsParameter, generateCodeVerifier, generatePkceChallenge } from './utils';
-import { type CallbackState, default as getCallbackStorage, CallbackStorage } from './storage';
+import { default as getCallbackStorage, CallbackStorage } from './storage';
 
 export type KcResponseMode = KeycloakConfigWithDefaults['responseMode'];
 
@@ -41,14 +41,21 @@ export type CallbackParamKeys =
   'error_uri' |
   'kc_action_status';
 
-export type CallbackParams = Partial<Record<CallbackParamKeys, string>>
+export type CallbackParams = Partial<Record<CallbackParamKeys, string>>;
+
+export interface TokenResponse {
+  access_token: string,
+  id_token: string,
+  refresh_token?: string,
+  [x: string]: any,
+}
 
 const KeycloakConfigDefaults: KeycloakConfigWithDefaults = {
   responseMode: 'fragment',
 };
 
 const GetLoginUrlOptionsDefaults: GetLoginUrlOptions = {
-}
+};
 
 export class Keycloak {
   private readonly callbackStorage: CallbackStorage;
@@ -68,12 +75,12 @@ export class Keycloak {
   }
 
   getLoginUrl(options: GetLoginUrlOptions = GetLoginUrlOptionsDefaults) {
-    var state = uuid();
-    var nonce = uuid();
-    var scope = 'openid';
-    var baseUrl = options.action === 'register' ? this.getEndpoints().register : this.getEndpoints().authorize;
-    var redirectUri = this.getRedirectUri();
-    var callbackState = {
+    const state = uuid();
+    const nonce = uuid();
+    let scope = 'openid';
+    const baseUrl = options.action === 'register' ? this.getEndpoints().register : this.getEndpoints().authorize;
+    const redirectUri = this.getRedirectUri();
+    const callbackState = {
       state,
       nonce,
       redirectUri: encodeURIComponent(redirectUri),
@@ -84,13 +91,13 @@ export class Keycloak {
       callbackState.prompt = options.prompt;
     }
     if (options.scope) {
-      if (scope.indexOf("openid") !== -1) {
+      if (scope.indexOf('openid') !== -1) {
         scope = options.scope;
       } else {
-        scope = "openid " + options.scope;
+        scope = 'openid ' + options.scope;
       }
     }
-    var url = baseUrl
+    let url = baseUrl
       + '?client_id=' + encodeURIComponent(this.config.clientId)
       + '&redirect_uri=' + encodeURIComponent(redirectUri)
       + '&state=' + encodeURIComponent(state)
@@ -110,30 +117,30 @@ export class Keycloak {
     if (options.idpHint) {
       url += '&kc_idp_hint=' + encodeURIComponent(options.idpHint);
     }
-    if (options.action && options.action != 'register') {
+    if (options.action && options.action !== 'register') {
       url += '&kc_action=' + encodeURIComponent(options.action);
     }
     if (options.locale) {
       url += '&ui_locales=' + encodeURIComponent(options.locale);
     }
     if (options.acr) {
-      var claimsParameter = buildClaimsParameter(options.acr);
+      const claimsParameter = buildClaimsParameter(options.acr);
       url += '&claims=' + encodeURIComponent(claimsParameter);
     }
     if (options.pkceMethod) {
-      var codeVerifier = generateCodeVerifier(96);
+      const codeVerifier = generateCodeVerifier(96);
       callbackState.pkceCodeVerifier = codeVerifier;
-      var pkceChallenge = generatePkceChallenge(options.pkceMethod, codeVerifier);
+      const pkceChallenge = generatePkceChallenge(options.pkceMethod, codeVerifier);
       url += '&code_challenge=' + pkceChallenge;
       url += '&code_challenge_method=' + options.pkceMethod;
     }
 
     this.callbackStorage.add(callbackState);
     return url;
-  };
+  }
 
   getLogoutUrl(options: { idToken?: string } = {}) {
-    var url = this.getEndpoints().logout
+    let url = this.getEndpoints().logout
       + '?client_id=' + encodeURIComponent(this.config.clientId)
       + '&post_logout_redirect_uri=' + encodeURIComponent(this.getRedirectUri());
     if (options.idToken) {
@@ -148,8 +155,8 @@ export class Keycloak {
   }
 
   getAccountUrl() {
-    var realm = this.getRealmUrl();
-    var url = undefined;
+    const realm = this.getRealmUrl();
+    let url = undefined;
     if (typeof realm !== 'undefined') {
         url = realm
         + '/account'
@@ -180,14 +187,14 @@ export class Keycloak {
 }
 
 export function endpoints(realmUrl: string) {
-  const _realmUrl = realmUrl.replace('\/+$', '');
+  const _realmUrl = realmUrl.replace(/\/+$/, '');
   return {
     authorize: `${_realmUrl}/protocol/openid-connect/auth`,
     token: `${_realmUrl}/protocol/openid-connect/token`,
     logout: `${_realmUrl}/protocol/openid-connect/logout`,
     register: `${_realmUrl}/protocol/openid-connect/registrations`,
     userinfo: `${_realmUrl}/protocol/openid-connect/userinfo`,
-  }
+  };
 }
 
 async function tokenRefresh(
@@ -195,20 +202,20 @@ async function tokenRefresh(
   clientId: string,
   refreshToken: string,
 ) {
-  var url = endpoints(realmUrl).token;
-  var req = new XMLHttpRequest();
+  const url = endpoints(realmUrl).token;
+  const req = new XMLHttpRequest();
   req.open('POST', url, true);
   req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  var params = 'grant_type=refresh_token' +
+  const params = 'grant_type=refresh_token' +
   `&client_id=${encodeURIComponent(clientId)}` +
-  `&refresh_token=${refreshToken}`
+  `&refresh_token=${refreshToken}`;
   req.withCredentials = true;
 
-  const tokenResponse: any = await new Promise((resolve, reject) => {
+  const tokenResponse: TokenResponse = await new Promise((resolve, reject) => {
     req.onreadystatechange = function() {
-      if (req.readyState == 4) {
-        if (req.status == 200) {
-          var tokenResponse = JSON.parse(req.responseText);
+      if (req.readyState === 4) {
+        if (req.status === 200) {
+          const tokenResponse = JSON.parse(req.responseText);
           resolve(tokenResponse);
         } else {
           reject(Error(`Token refresh request failed with ${req.status} ${req.statusText}`));
@@ -218,7 +225,7 @@ async function tokenRefresh(
     req.send(params);
   });
   return { ...parseTokenResponse(tokenResponse), iatLocal: Math.floor(new Date().getTime()/1000) };
-;
+
 }
 
 /**
@@ -228,7 +235,7 @@ async function tokenRefresh(
  * Note the tokens are not validated because we don't care we just pass then to RS which must validate properly.
  */
 async function processCodeFlowCallbackUrl(
-    url: string,
+    callbackUrl: string,
     realmUrl: string,
     clientId: string,
     responseMode: KcResponseMode,
@@ -240,32 +247,35 @@ async function processCodeFlowCallbackUrl(
     error,
     error_description,
     error_uri,
-    newUrl } = parseCodeFlowCallbackUrl(url, responseMode) || {};
-  if(!code || !state) return false; // If state and code are not set it's not a oauth callback.
+    newUrl } = parseCodeFlowCallbackUrl(callbackUrl, responseMode) || {};
+  if (!code || !state) { // If state and code are not set then it's definitely not a oauth callback.
+    return false;
+  }
   const storedState = stateStore.get(state);
-  if(!storedState) {
+  if (!newUrl) throw new Error(); // Type assertion.
+  if (!storedState) {
     throw new CallbackValidationError('No stored state matching callback not found', newUrl);
   }
   const { prompt, nonce: storedNonce, pkceCodeVerifier, redirectUri } = storedState;
 
-  // Not sure what this is for ...
+  // Not sure what this is for but it's optional.
   // if (kc_action_status && onActionUpdate) {
   //   onActionUpdate(kc_action_status);
   // }
 
   if (error) {
-    if (prompt != 'none') {
+    if (prompt !== 'none') {
       throw new AuthenticationServerError(error, error_description, error_uri);
     }
     return;
   }
 
   // Exchange code for tokens
-  var url = endpoints(realmUrl).token;
-  var req = new XMLHttpRequest();
+  const url = endpoints(realmUrl).token;
+  const req = new XMLHttpRequest();
   req.open('POST', url, true);
   req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  var params = 'grant_type=authorization_code' +
+  let params = 'grant_type=authorization_code' +
   `&code=${code}` +
   `&client_id=${encodeURIComponent(clientId)}` +
   `&redirect_uri=${redirectUri}`;
@@ -274,11 +284,11 @@ async function processCodeFlowCallbackUrl(
   }
   req.withCredentials = true;
 
-  const tokenResponse: any = await new Promise((resolve, reject) => {
+  const tokenResponse: TokenResponse = await new Promise((resolve, reject) => {
     req.onreadystatechange = function() {
-      if (req.readyState == 4) {
-        if (req.status == 200) {
-          var tokenResponse = JSON.parse(req.responseText);
+      if (req.readyState === 4) {
+        if (req.status === 200) {
+          const tokenResponse = JSON.parse(req.responseText);
           resolve(tokenResponse);
         } else {
           reject(Error(`Code flow token request failed with ${req.status} ${req.statusText}`));
@@ -296,9 +306,9 @@ async function processCodeFlowCallbackUrl(
     idTokenParsed,
     refreshTokenParsed,
   } = parseTokenResponse(tokenResponse);
-  if(accessTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('accessToken nonce mismatch', newUrl);
-  if(idTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('idToken nonce mismatch', newUrl);
-  if(refreshTokenParsed && refreshTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('refreshToken nonce mismatch', newUrl);
+  if (accessTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('accessToken nonce mismatch', newUrl);
+  if (idTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('idToken nonce mismatch', newUrl);
+  if (refreshTokenParsed && refreshTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('refreshToken nonce mismatch', newUrl);
   return {
     accessToken,
     idToken,
@@ -308,15 +318,15 @@ async function processCodeFlowCallbackUrl(
     refreshTokenParsed,
     newUrl,
     iatLocal,
-  }
+  };
 }
 
 function parseTokenResponse(tokenResponse: Record<string, any>) {
   const { access_token: accessToken, refresh_token: refreshToken, id_token: idToken } = tokenResponse;
   // Pretty sure refresh token is always supposed to be there but spec doesn't clarify.
-  if(!accessToken) throw new TokenValidationError('Token response did not include an access token');
-  if(!idToken) throw new TokenValidationError('Token response did not include an id token');
-  if(!refreshToken) console.warn('Token response did not include a refresh token');
+  if (!accessToken) throw new TokenValidationError('Token response did not include an access token');
+  if (!idToken) throw new TokenValidationError('Token response did not include an id token');
+  if (!refreshToken) console.warn('Token response did not include a refresh token');
   const accessTokenParsed = decodeToken(accessToken);
   const idTokenParsed = decodeToken(idToken);
   const refreshTokenParsed = decodeToken(refreshToken);
@@ -357,11 +367,11 @@ function decodeToken(str: string): Record<string, any> {
 function parseCodeFlowCallbackUrl(url: string, responseMode: KcResponseMode): CallbackParams & { newUrl: string } | undefined {
   function parseCodeFlowCallbackParams(paramsString: string, supportedParams: string[]): { remainingParamsString: string, oauthParams: Record<string, string | undefined> }  {
     const p = paramsString.split('&');
-    let remainingParamsString = '';
-    let oauthParams = {};
-    for (var i = 0; i < p.length; i++) {
-      var split = p[i].indexOf("=");
-      var key = p[i].slice(0, split);
+    const remainingParamsString = '';
+    const oauthParams = {};
+    for (let i = 0; i < p.length; i++) {
+      const split = p[i].indexOf('=');
+      const key = p[i].slice(0, split);
       if (supportedParams.indexOf(key) !== -1) {
         oauthParams[key] = p[i].slice(split + 1);
       } else {
@@ -373,7 +383,7 @@ function parseCodeFlowCallbackUrl(url: string, responseMode: KcResponseMode): Ca
     }
     return { remainingParamsString, oauthParams };
   }
-  let supportedParams: CallbackParamKeys[] = ['error', 'error_description', 'error_uri', 'kc_action_status', 'code', 'state', 'session_state']
+  const supportedParams: CallbackParamKeys[] = ['error', 'error_description', 'error_uri', 'kc_action_status', 'code', 'state', 'session_state'];
   let newUrl: string = url;
   let parsed = undefined;
   const queryIndex = url.indexOf('?');
@@ -400,16 +410,17 @@ function parseCodeFlowCallbackUrl(url: string, responseMode: KcResponseMode): Ca
 
 class AuthenticationServerError extends Error {
   constructor(error: string, error_description?: string, error_uri?: string) {
-    super(error)
+    super(error);
     Object.assign(this, { error, error_description, error_uri });
   }
 }
 
 class CallbackValidationError extends Error {
-  constructor(message: string, public newUrl: string | undefined) {
+  constructor(message: string, public newUrl: string) {
     super(message);
+    this.newUrl = newUrl;
   }
 }
 
 class TokenValidationError extends Error {
-};
+}

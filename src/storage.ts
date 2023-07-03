@@ -13,7 +13,7 @@ export interface CallbackState {
 	redirectUri: string,
   prompt?: string,
   pkceCodeVerifier?: string,
-};
+}
 
 export interface CallbackStorage {
   get(state: string): CallbackState | null;
@@ -27,8 +27,8 @@ export class LocalStorage implements CallbackStorage {
   }
 
   get(state: string) {
-    var key = 'kc-callback-' + state;
-    var value = localStorage.getItem(key);
+    const key = 'kc-callback-' + state;
+    const value = localStorage.getItem(key);
     this.clearExpired();
     if (value) {
       localStorage.removeItem(key);
@@ -39,19 +39,19 @@ export class LocalStorage implements CallbackStorage {
 
   add(state: CallbackState) {
     this.clearExpired();
-    var key = 'kc-callback-' + state.state;
+    const key = 'kc-callback-' + state.state;
     localStorage.setItem(key, JSON.stringify({ ...state, expires: new Date().getTime() + (60 * 60 * 1000)}));
   }
 
   clearExpired() {
-    var time = new Date().getTime();
-    for (var i = 0; i < localStorage.length; i++)  {
-      var key = localStorage.key(i);
-      if (key && key.indexOf('kc-callback-') == 0) {
-        var value = localStorage.getItem(key);
+    const time = new Date().getTime();
+    for (let i = 0; i < localStorage.length; i++)  {
+      const key = localStorage.key(i);
+      if (key && key.indexOf('kc-callback-') === 0) {
+        const value = localStorage.getItem(key);
         if (value) {
           try {
-            var expires = JSON.parse(value).expires;
+            const expires = JSON.parse(value).expires;
             if (!expires || expires < time) {
               localStorage.removeItem(key);
             }
@@ -67,12 +67,12 @@ export class LocalStorage implements CallbackStorage {
 
 export class CookieStorage implements CallbackStorage {
   get(state: string) {
-    var value = this.getCookie('kc-callback-' + state);
+    const value = this.getCookie('kc-callback-' + state);
     this.setCookie('kc-callback-' + state, '', this.cookieExpiration(-100));
     if (value) {
       return JSON.parse(value);
     }
-  };
+  }
 
   add(state: CallbackState) {
     this.setCookie('kc-callback-' + state.state, JSON.stringify(state), this.cookieExpiration(60));
@@ -83,14 +83,14 @@ export class CookieStorage implements CallbackStorage {
   }
 
   getCookie(key: string) {
-    var name = key + '=';
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-      var c = ca[i];
-      while (c.charAt(0) == ' ') {
+    const name = key + '=';
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === ' ') {
         c = c.substring(1);
       }
-      if (c.indexOf(name) == 0) {
+      if (c.indexOf(name) === 0) {
         return c.substring(name.length, c.length);
       }
     }
@@ -98,13 +98,13 @@ export class CookieStorage implements CallbackStorage {
   }
 
   setCookie(key: string, value: string, expirationDate: Date) {
-    var cookie = key + '=' + value + '; '
+    const cookie = key + '=' + value + '; '
       + 'expires=' + expirationDate.toUTCString() + '; ';
     document.cookie = cookie;
-  };
+  }
 
   cookieExpiration(minutes: number) {
-    var exp = new Date();
+    const exp = new Date();
     exp.setTime(exp.getTime() + (minutes*60*1000));
     return exp;
   }

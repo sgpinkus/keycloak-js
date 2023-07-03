@@ -1,14 +1,26 @@
 /* eslint-env node */
-require('@rushstack/eslint-patch/modern-module-resolution');
 
 module.exports = {
-  'root': true,
-  'extends': [
-    'plugin:vue/vue3-essential',
+  root: true,
+  env: {
+    node: true,
+    mocha: true,
+    es2021: true,
+  },
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    sourceType: 'module',
+    ecmaVersion: 'latest',
+    requireConfigFile: false,
+  },
+  extends: [
     'eslint:recommended',
-    '@vue/eslint-config-typescript/recommended',
+    'plugin:@typescript-eslint/recommended',
   ],
-  'rules': {
+  plugins: [
+    '@typescript-eslint/eslint-plugin',
+  ],
+  rules: {
     'no-var': 'warn',
     'eqeqeq': 'warn',
     'keyword-spacing': 'error',
@@ -19,12 +31,12 @@ module.exports = {
     'quotes': [ 'error', 'single', { avoidEscape: true, allowTemplateLiterals: true } ],
     'semi': ['error', 'always'],
     'semi-spacing': 'error',
-    'spaced-comment': ['warn', 'always'],
+    'spaced-comment': 0,
     'vue/multi-word-component-names': 'off',
     'comma-dangle': ['warn', 'always-multiline'],
     'no-unused-vars': [
       'warn',
-      { vars: 'all', args: 'all', argsIgnorePattern: '^_', ignoreRestSiblings: false },
+      { vars: 'all', args: 'all', argsIgnorePattern: '^_|this', ignoreRestSiblings: false },
     ],
   },
 };
