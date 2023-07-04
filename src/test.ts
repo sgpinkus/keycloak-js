@@ -1,4 +1,4 @@
-import { Keycloak } from '.';
+import { Keycloak } from './index';
 
 const config = {
   authServerUrl: 'http://localhost:3001',

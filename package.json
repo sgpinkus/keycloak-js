@@ -7,7 +7,7 @@
     "_build-tsc": "tsc",
     "_build-watch": "rollup -w --config rollup.config.mjs",
     "_build": "rollup --config rollup.config.mjs",
-    "build": "npm-run-all clean _build",
+    "build": "npm-run-all clean _build _build-tsc",
     "clean": "rm -rf dist/*",
     "dev": "npm-run-all clean -p _build-watch _build-tsc",
     "lint": "eslint src/",

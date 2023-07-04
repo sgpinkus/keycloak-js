@@ -12,11 +12,18 @@ export default {
 			plugins: [
 				terser(),
 			],
+		}, {
+			file: 'sample-app/index.min.js',
+			format: 'iife',
+			name: 'keycloakjssimple',
+			plugins: [
+				terser(),
+			],
 		},
 	],
 	plugins: [
 		typescript(),
 		nodeResolve(),
-		commonjs()
+		commonjs(),
 	],
 };
