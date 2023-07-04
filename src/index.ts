@@ -51,6 +51,20 @@ export interface TokenResponse {
   [x: string]: any,
 }
 
+export interface ParsedTokenResponse {
+  accessToken: string,
+  idToken: string,
+  refreshToken?: string
+  accessTokenParsed: Record<string, unknown>,
+  idTokenParsed: Record<string, unknown>,
+  refreshTokenParsed: Record<string, unknown>,
+  iatLocal: number,
+}
+
+export interface CodeFlowParsedTokenResponse extends ParsedTokenResponse {
+  newUrl: string,
+}
+
 const KeycloakConfigDefaults: KeycloakConfigWithDefaults = {
   responseMode: 'fragment',
 };
@@ -207,7 +221,7 @@ async function tokenRefresh(
   realmUrl: string,
   clientId: string,
   refreshToken: string,
-) {
+): Promise<ParsedTokenResponse> {
   const url = endpoints(realmUrl).token;
   const params = {
     grant_type: 'refresh_token',
@@ -236,7 +250,7 @@ async function processCodeFlowCallbackUrl(
     clientId: string,
     responseMode: KcResponseMode,
     stateStore: CallbackStorage,
-) {
+): Promise<CodeFlowParsedTokenResponse | false> {
   const {
     code,
     state,
@@ -254,7 +268,7 @@ async function processCodeFlowCallbackUrl(
   }
   const { prompt, nonce: storedNonce, pkceCodeVerifier, redirectUri } = storedState;
 
-  // Not sure what this is for but it's optional.
+  // For ref the official adapter does this but onActionUpdate is optional and afaik undocd.
   // if (kc_action_status && onActionUpdate) {
   //   onActionUpdate(kc_action_status);
   // }
@@ -263,7 +277,7 @@ async function processCodeFlowCallbackUrl(
     if (prompt !== 'none') {
       throw new AuthenticationServerError(error, error_description, error_uri);
     }
-    return;
+    return false;
   }
 
   // Exchange code for tokens

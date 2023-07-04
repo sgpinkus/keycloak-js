@@ -1,13 +1,25 @@
 # KEYCLOCK-JS-SIMPLE
-This is a replacement for [keycloak-js][1], but simpler:
+A simpler less stateful replacement for the official [keycloak-js][1] adapter. Only supports code authentication flow (since implicit is deprecated).
 
-  - Use Typescript, modern classes and promises.
-  - Less features:
-    - hybrid and implicit flow dropped - only code (AKA "standard") supported.
-    - no automatic login redirect or authentication - do it yourself.
-  - No stateful Keycloak instance and its complex states (there is still a stateful Keycloak instance but it's (mostly?) immutable).
 
-# SYNOPSIS
-See [sample-app](./sample-app/index.html).
+# INSTALLATION
+
+```
+npm i @sgpinkus/keycloak-js
+```
+
+# USAGE
+
+```
+import { Keycloak } from 'keycloak-js-simple';
+const kc = new Keycloak({
+  authServerUrl: 'http://localhost:8080',
+  realm: 'testing',
+  clientId: 'testing',
+};
+window.location = kc.getLoginUrl();
+```
+
+See [sample-app](./sample-app/index.html) for complete example.
 
 [1]: https://www.keycloak.org/docs/latest/securing_apps/index.html#_javascript_adapter

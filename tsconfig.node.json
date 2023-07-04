@@ -1,29 +1,18 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "esModuleInterop": true,
-    "importsNotUsedAsValues": "error",
-    "isolatedModules": false,
-    "lib": ["ES2021", "DOM", "DOM.Iterable"],
-    "moduleResolution": "node",
+    "isolatedModules": true,
+    "module": "commonjs",
     "noImplicitAny": false,
     "outDir": "./dist/",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "removeComments": false,
-    "skipLibCheck": true,
-    "sourceMap": false,
-    "strict": false,
-    "suppressImplicitAnyIndexErrors": true,
-    "target": "ES6",
-    "useDefineForClassFields": true
+    "strict": true,
+    "target": "ES6"
   },
   "exclude": [
     "node_modules/*",
     "**/*-aot.ts"
   ],
   "include": [
-    "src/x.ts"
+    "src/*test.ts"
   ]
 }

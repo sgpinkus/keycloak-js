@@ -1,5 +1,3 @@
-// TODO: Wrap in test harness and add a bit more tests.
-
 import { Keycloak, MockStorage } from './index';
 import { createUUID } from './utils';
 
@@ -24,3 +22,4 @@ ${kc.getLogoutUrl()}
 ${kc.getAccountUrl()}
 ${kc.getRegisterUrl()}
 `);
+

@@ -1,26 +1,38 @@
 {
-  "name": "keycloak-js-simple",
+  "name": "@sgpinkus/keycloak-js",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple keycloak javascript adapter",
+  "author": "sgpinkus",
+  "license": "MIT",
+  "keywords": [
+    "keycloak"
+  ],
+  "homepage": "https://github.com/sgpinkus/keycloak-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sgpinkus/keycloak-js"
+  },
   "scripts": {
     "_build-tsc-watch": "tsc -w",
     "_build-tsc": "tsc",
     "_build-watch": "rollup -w --config rollup.config.mjs",
     "_build": "rollup --config rollup.config.mjs",
-    "build": "npm-run-all clean _build _build-tsc",
+    "build": "npm-run-all clean _build",
     "clean": "rm -rf dist/*",
-    "dev": "npm-run-all clean -p _build-watch _build-tsc",
+    "dev": "npm-run-all clean -p _build-watch",
     "lint": "eslint src/",
     "prepare": "npm run build",
-    "test": "TS_NODE_PROJECT=tsconfig.node.json ts-node -- src/test.ts"
+    "test": "TS_NODE_PROJECT=tsconfig.node.json ts-node src/test.ts"
   },
-  "keywords": [
-    "keycloak"
-  ],
-  "author": "sgpinkus",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "dist/index.mjs",
   "browser": "dist/index.min.js",
-  "license": "ISC",
+  "types": "dist/types",
+  "exports": {
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.cjs",
+    "browser": "./dist/index.min.js"
+  },
   "dependencies": {
     "axios": "^1.4.0",
     "base64-js": "^1.5.1",

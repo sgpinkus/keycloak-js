@@ -13,13 +13,19 @@ export default {
 			plugins: [
 				terser(),
 			],
-		}, {
+		}, { // TODO: Just copy.
 			file: 'sample-app/index.min.js',
 			format: 'iife',
 			name: 'keycloakjssimple',
 			plugins: [
 				terser(),
 			],
+		}, {
+			file: 'dist/index.cjs',
+			format: 'cjs',
+		}, {
+			file: 'dist/index.mjs',
+			format: 'esm',
 		},
 	],
 	plugins: [
