@@ -2,16 +2,18 @@ import { sha256 } from 'js-sha256';
 import base64Js from 'base64-js';
 
 export function generateRandomData(len: number) {
-  // use web crypto APIs if possible
-  let array = null;
-  if (window.Crypto && window.Uint8Array) {
-    const crypto = new Crypto();
-    array = new Uint8Array(len);
+  try {
+    const array = new Uint8Array(len);
     crypto.getRandomValues(array);
     return array;
+  } catch (e) {
+    console.info(`Generating random data via crypto.getRandomValues() failed: ${e.message}. Using Math.random()`);
+    return getRandomDataInsecure(len);
   }
-  // fallback to Math random
-  array = new Array(len);
+}
+
+export function getRandomDataInsecure(len: number) {
+  const array = new Uint8Array(len);
   for (let j = 0; j < array.length; j++) {
     array[j] = Math.floor(256 * Math.random());
   }
