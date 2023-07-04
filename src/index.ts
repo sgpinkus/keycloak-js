@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { buildClaimsParameter, generateCodeVerifier, generatePkceChallenge } from './utils';
+import { generateCodeVerifier, generatePkceChallenge } from './utils';
 import { default as getCallbackStorage, CallbackStorage } from './storage';
 
 export type KcResponseMode = KeycloakConfigWithDefaults['responseMode'];
@@ -124,7 +124,11 @@ export class Keycloak {
       url += '&ui_locales=' + encodeURIComponent(options.locale);
     }
     if (options.acr) {
-      const claimsParameter = buildClaimsParameter(options.acr);
+      const claimsParameter = JSON.stringify({
+        id_token: {
+          acr: options.acr,
+        },
+      });
       url += '&claims=' + encodeURIComponent(claimsParameter);
     }
     if (options.pkceMethod) {

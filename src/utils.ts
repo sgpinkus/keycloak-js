@@ -31,15 +31,6 @@ export function generateRandomString(len: number, alphabet: string){
   return String.fromCharCode.apply(null, chars);
 }
 
-export function buildClaimsParameter(requestedAcr: string){
-  const claims = {
-    id_token: {
-      acr: requestedAcr,
-    },
-  };
-  return JSON.stringify(claims);
-}
-
 export function generatePkceChallenge(pkceMethod: 'S256', codeVerifier: string) {
   switch (pkceMethod) {
     // The use of the "plain" method is considered insecure and therefore not supported.
