@@ -1,6 +1,6 @@
-import { v4 as uuid } from 'uuid';
-import { generateCodeVerifier, generatePkceChallenge } from './utils';
-import { default as getCallbackStorage, CallbackStorage, CallbackState } from './storage';
+import { generateCodeVerifier, generatePkceChallenge, createUUID } from './utils';
+import { default as getCallbackStorage, CallbackStorage } from './storage';
+export { MockStorage } from './storage';
 
 export type KcResponseMode = KeycloakConfigWithDefaults['responseMode'];
 
@@ -77,8 +77,8 @@ export class Keycloak {
   }
 
   getLoginUrl(options: GetLoginUrlOptions = GetLoginUrlOptionsDefaults) {
-    const state = uuid();
-    const nonce = uuid();
+    const state = createUUID();
+    const nonce = createUUID();
     let scope = 'openid';
     const baseUrl = options.action === 'register' ? this.getEndpoints().register : this.getEndpoints().authorize;
     const redirectUri = this.getRedirectUri();
@@ -162,7 +162,7 @@ export class Keycloak {
 
   getAccountUrl() {
     const realm = this.getRealmUrl();
-    let url = undefined;
+    let url: string | undefined = undefined;
     if (typeof realm !== 'undefined') {
         url = realm
         + '/account'
@@ -370,7 +370,8 @@ function decodeToken(str: string): Record<string, any> {
  * TODO: This should be about three LOC.
  */
 function parseCodeFlowCallbackUrl(url: string, responseMode: KcResponseMode): CallbackParams & { newUrl: string } | undefined {
-  function parseCodeFlowCallbackParams(paramsString: string, supportedParams: string[]): { remainingParamsString: string, oauthParams: Record<string, string | undefined> }  {
+  function parseCodeFlowCallbackParams(paramsString: string, supportedParams: string[]):
+  { remainingParamsString: string, oauthParams: CallbackParams } {
     const p = paramsString.split('&');
     const remainingParamsString = '';
     const oauthParams = {};
@@ -390,7 +391,7 @@ function parseCodeFlowCallbackUrl(url: string, responseMode: KcResponseMode): Ca
   }
   const supportedParams: CallbackParamKeys[] = ['error', 'error_description', 'error_uri', 'kc_action_status', 'code', 'state', 'session_state'];
   let newUrl: string = url;
-  let parsed = undefined;
+  let parsed: ReturnType<typeof parseCodeFlowCallbackParams> | undefined = undefined;
   const queryIndex = url.indexOf('?');
   const fragmentIndex = url.indexOf('#');
 

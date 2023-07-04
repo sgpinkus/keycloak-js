@@ -3,3 +3,5 @@ node_modules/
 .npm
 .editorconfig
 sample-app/index.min.js
+.config/
+.node_repl_history

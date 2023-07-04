@@ -1,27 +1,27 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
     "declaration": true,
     "declarationMap": false,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
+    "lib": ["ESNext", "DOM"],
     "module": "ESNext",
     "moduleResolution": "node",
     "noImplicitAny": true,
     "outDir": "./dist/",
-    "plugins": [],
-    "removeComments": true,
+    "removeComments": false,
     "sourceMap": false,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "lib": ["ESNext", "DOM"],
     "target": "ES6"
   },
   "compileOnSave": true,
   "exclude": [
     "node_modules/*",
-    "**/*-aot.ts"
+    "**/*-aot.ts",
+    "**/*test.ts"
   ],
   "include": [
     "src/**.ts",

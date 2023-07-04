@@ -64,7 +64,6 @@ export class LocalStorage implements CallbackStorage {
   }
 }
 
-
 export class CookieStorage implements CallbackStorage {
   get(state: string) {
     const value = this.getCookie('kc-callback-' + state);
@@ -78,11 +77,7 @@ export class CookieStorage implements CallbackStorage {
     this.setCookie('kc-callback-' + state.state, JSON.stringify(state), this.cookieExpiration(60));
   }
 
-  removeItem(key: string) {
-    this.setCookie(key, '', this.cookieExpiration(-100));
-  }
-
-  getCookie(key: string) {
+  private getCookie(key: string) {
     const name = key + '=';
     const ca = document.cookie.split(';');
     for (let i = 0; i < ca.length; i++) {
@@ -97,15 +92,29 @@ export class CookieStorage implements CallbackStorage {
     return '';
   }
 
-  setCookie(key: string, value: string, expirationDate: Date) {
+  private setCookie(key: string, value: string, expirationDate: Date) {
     const cookie = key + '=' + value + '; '
       + 'expires=' + expirationDate.toUTCString() + '; ';
     document.cookie = cookie;
   }
 
-  cookieExpiration(minutes: number) {
+  private cookieExpiration(minutes: number) {
     const exp = new Date();
     exp.setTime(exp.getTime() + (minutes*60*1000));
     return exp;
+  }
+}
+
+export class MockStorage implements CallbackStorage {
+  private data = {};
+
+  add(state: CallbackState) {
+    this.data[state.state] = state;
+  }
+
+  get(state: string) {
+    const _state = this.data[state];
+    delete this.data[state];
+    return _state;
   }
 }
