@@ -38,7 +38,10 @@
         <v-spacer class="hidden-sm-and-down"></v-spacer>
         <v-item-group>
           <v-btn v-if="!isLoggedIn" @click="login">Login</v-btn>
-          <v-btn v-else @click="logout">Logout</v-btn>
+          <template v-else>
+            <v-btn @click="refreshTokens">Refresh Token Now</v-btn>
+            <v-btn @click="logout">Logout</v-btn>
+          </template>
         </v-item-group>
       </v-app-bar>
       <v-main>

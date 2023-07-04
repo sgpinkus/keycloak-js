@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { generateCodeVerifier, generatePkceChallenge, createUUID } from './utils';
 import { default as getCallbackStorage, CallbackStorage } from './storage';
 export { MockStorage } from './storage';
@@ -85,7 +86,7 @@ export class Keycloak {
     const callbackState = {
       state,
       nonce,
-      redirectUri: encodeURIComponent(redirectUri),
+      redirectUri,
       prompt: '',
       pkceCodeVerifier: '',
     };
@@ -208,29 +209,19 @@ async function tokenRefresh(
   refreshToken: string,
 ) {
   const url = endpoints(realmUrl).token;
-  const req = new XMLHttpRequest();
-  req.open('POST', url, true);
-  req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  const params = 'grant_type=refresh_token' +
-  `&client_id=${encodeURIComponent(clientId)}` +
-  `&refresh_token=${refreshToken}`;
-  req.withCredentials = true;
-
-  const tokenResponse: TokenResponse = await new Promise((resolve, reject) => {
-    req.onreadystatechange = function() {
-      if (req.readyState === 4) {
-        if (req.status === 200) {
-          const tokenResponse = JSON.parse(req.responseText);
-          resolve(tokenResponse);
-        } else {
-          reject(Error(`Token refresh request failed with ${req.status} ${req.statusText}`));
-        }
-      }
-    };
-    req.send(params);
-  });
-  return { ...parseTokenResponse(tokenResponse), iatLocal: Math.floor(new Date().getTime()/1000) };
-
+  const params = {
+    grant_type: 'refresh_token',
+    client_id: clientId,
+    refresh_token: refreshToken,
+  };
+  try {
+    const tokenResponse = (await axios.post(url, new URLSearchParams(params), {
+      withCredentials: true,
+    })).data;
+    return { ...parseTokenResponse(tokenResponse), iatLocal: Math.floor(new Date().getTime()/1000) };
+  } catch (e) {
+    throw new Error(`Token refresh request failed with ${e.response?.status} ${e.response?.statusText}`);
+  }
 }
 
 /**
@@ -277,53 +268,46 @@ async function processCodeFlowCallbackUrl(
 
   // Exchange code for tokens
   const url = endpoints(realmUrl).token;
-  const req = new XMLHttpRequest();
-  req.open('POST', url, true);
-  req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  let params = 'grant_type=authorization_code' +
-  `&code=${code}` +
-  `&client_id=${encodeURIComponent(clientId)}` +
-  `&redirect_uri=${redirectUri}`;
-  if (pkceCodeVerifier) {
-    params += `&code_verifier=${pkceCodeVerifier}`;
-  }
-  req.withCredentials = true;
-
-  const tokenResponse: TokenResponse = await new Promise((resolve, reject) => {
-    req.onreadystatechange = function() {
-      if (req.readyState === 4) {
-        if (req.status === 200) {
-          const tokenResponse = JSON.parse(req.responseText);
-          resolve(tokenResponse);
-        } else {
-          reject(Error(`Code flow token request failed with ${req.status} ${req.statusText}`));
-        }
-      }
-    };
-    req.send(params);
-  });
-  const iatLocal = Math.floor(new Date().getTime()/1000);
-  const {
-    accessToken,
-    idToken,
-    refreshToken,
-    accessTokenParsed,
-    idTokenParsed,
-    refreshTokenParsed,
-  } = parseTokenResponse(tokenResponse);
-  if (accessTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('accessToken nonce mismatch', newUrl);
-  if (idTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('idToken nonce mismatch', newUrl);
-  if (refreshTokenParsed && refreshTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('refreshToken nonce mismatch', newUrl);
-  return {
-    accessToken,
-    idToken,
-    refreshToken,
-    accessTokenParsed,
-    idTokenParsed,
-    refreshTokenParsed,
-    newUrl,
-    iatLocal,
+  const params = {
+    'grant_type': 'authorization_code',
+    code,
+    'client_id': clientId,
+    'redirect_uri': redirectUri,
   };
+  if (pkceCodeVerifier) {
+    params['code_verifier'] = pkceCodeVerifier;
+  }
+  try {
+    const tokenResponse = (await axios.post(url, new URLSearchParams(params), {
+      withCredentials: true,
+    })).data;
+    const iatLocal = Math.floor(new Date().getTime()/1000);
+    const {
+      accessToken,
+      idToken,
+      refreshToken,
+      accessTokenParsed,
+      idTokenParsed,
+      refreshTokenParsed,
+    } = parseTokenResponse(tokenResponse);
+    if (accessTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('accessToken nonce mismatch', newUrl);
+    if (idTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('idToken nonce mismatch', newUrl);
+    if (refreshTokenParsed && refreshTokenParsed.nonce !== storedNonce) throw new CallbackValidationError('refreshToken nonce mismatch', newUrl);
+    return {
+      accessToken,
+      idToken,
+      refreshToken,
+      accessTokenParsed,
+      idTokenParsed,
+      refreshTokenParsed,
+      newUrl,
+      iatLocal,
+    };
+  } catch (e) {
+    throw new Error(`Code flow token request failed with ${e.response?.status} ${e.response?.statusText}`);
+  }
+
+
 }
 
 function parseTokenResponse(tokenResponse: Record<string, any>) {
