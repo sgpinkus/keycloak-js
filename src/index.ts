@@ -60,10 +60,12 @@ const GetLoginUrlOptionsDefaults: GetLoginUrlOptions = {
 export class Keycloak {
   private readonly callbackStorage: CallbackStorage;
   private readonly config: KeycloakConfig & KeycloakConfigWithDefaults;
+  private readonly redirectUri: string;
 
   constructor(config: KeycloakConfig, storage?: CallbackStorage) {
     this.config = { ...KeycloakConfigDefaults, ...config };
     this.callbackStorage = storage || getCallbackStorage();
+    this.redirectUri = config.redirectUri ?? (new URL('/', window.location.href)).toString();
   }
 
   getEndpoints() {
@@ -170,9 +172,8 @@ export class Keycloak {
     return url;
   }
 
-  getRedirectUri() {
-    return this.config.redirectUri ??
-      (new URL('/', window.location.href)).toString();
+  getRedirectUri(): string {
+    return this.redirectUri;
   }
 
   processCodeFlowCallbackUrl(url: string) {
