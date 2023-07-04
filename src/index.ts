@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { generateCodeVerifier, generatePkceChallenge } from './utils';
-import { default as getCallbackStorage, CallbackStorage } from './storage';
+import { default as getCallbackStorage, CallbackStorage, CallbackState } from './storage';
 
 export type KcResponseMode = KeycloakConfigWithDefaults['responseMode'];
 
@@ -61,9 +61,9 @@ export class Keycloak {
   private readonly callbackStorage: CallbackStorage;
   private readonly config: KeycloakConfig & KeycloakConfigWithDefaults;
 
-  constructor(config: KeycloakConfig) {
+  constructor(config: KeycloakConfig, storage?: CallbackStorage) {
     this.config = { ...KeycloakConfigDefaults, ...config };
-    this.callbackStorage = getCallbackStorage();
+    this.callbackStorage = storage || getCallbackStorage();
   }
 
   getEndpoints() {
