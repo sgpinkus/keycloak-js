@@ -3,16 +3,16 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "module": "commonjs",
+    "target": "ES6",
     "noImplicitAny": false,
     "outDir": "./dist/",
-    "strict": true,
-    "target": "ES6"
+    "strict": false
   },
   "exclude": [
     "node_modules/*",
     "**/*-aot.ts"
   ],
   "include": [
-    "src/*test.ts"
+    "src/**.ts"
   ]
 }

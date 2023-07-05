@@ -24,7 +24,6 @@
     "prepare": "npm run build",
     "test": "TS_NODE_PROJECT=tsconfig.node.json ts-node src/test.ts"
   },
-  "type": "module",
   "main": "dist/index.mjs",
   "browser": "dist/index.min.js",
   "types": "dist/types",
