@@ -9,14 +9,14 @@ export default {
 	output: [{
 			file: 'dist/index.min.js',
 			format: 'iife',
-			name: 'keycloakjssimple',
+			name: 'keycloakjs',
 			plugins: [
 				terser(),
 			],
 		}, { // TODO: Just copy.
 			file: 'sample-app/index.min.js',
 			format: 'iife',
-			name: 'keycloakjssimple',
+			name: 'keycloakjs',
 			plugins: [
 				terser(),
 			],

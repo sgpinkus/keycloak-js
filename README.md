@@ -11,13 +11,13 @@ npm i @sgpinkus/keycloak-js
 # USAGE
 
 ```
-import { Keycloak } from 'keycloak-js-simple';
+import { Keycloak } from '@sgpinkus/keycloak-js';
 const kc = new Keycloak({
   authServerUrl: 'http://localhost:8080',
   realm: 'testing',
   clientId: 'testing',
 };
-window.location = kc.getLoginUrl();
+window.location.href = kc.getLoginUrl();
 ```
 
 See [sample-app](./sample-app/index.html) for complete example.
