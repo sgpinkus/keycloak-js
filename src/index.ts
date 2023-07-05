@@ -352,7 +352,7 @@ function parseTokenResponse(tokenResponse: Record<string, any>) {
   };
 }
 
-function decodeToken(str: string): Record<string, any> {
+function decodeToken(str: string): TokenParsed {
   str = str.split('.')[1];
   str = str.replace(/-/g, '+');
   str = str.replace(/_/g, '/');
