@@ -55,10 +55,19 @@ export interface ParsedTokenResponse {
   accessToken: string,
   idToken: string,
   refreshToken?: string
-  accessTokenParsed: Record<string, unknown>,
-  idTokenParsed: Record<string, unknown>,
-  refreshTokenParsed: Record<string, unknown>,
+  accessTokenParsed: TokenParsed,
+  idTokenParsed: TokenParsed,
+  refreshTokenParsed: TokenParsed,
   iatLocal: number,
+}
+
+export interface TokenParsed {
+  iss: string,
+  aud: string,
+  sub: string,
+  exp: number,
+  iat: number,
+  [prop: string]: any,
 }
 
 export interface CodeFlowParsedTokenResponse extends ParsedTokenResponse {
