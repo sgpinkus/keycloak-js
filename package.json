@@ -1,6 +1,6 @@
 {
   "name": "@sgpinkus/keycloak-js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A simple keycloak javascript adapter",
   "author": "sgpinkus",
   "license": "MIT",
@@ -25,12 +25,10 @@
     "test": "TS_NODE_PROJECT=tsconfig.node.json ts-node src/test.ts"
   },
   "main": "dist/index.mjs",
-  "browser": "dist/index.min.js",
   "types": "dist/types",
   "exports": {
     "import": "./dist/index.mjs",
-    "require": "./dist/index.cjs",
-    "browser": "./dist/index.min.js"
+    "require": "./dist/index.cjs"
   },
   "dependencies": {
     "axios": "^1.4.0",
