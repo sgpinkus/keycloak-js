@@ -3,6 +3,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 
 export default {
 	input: ['src/index.ts'],
@@ -33,5 +34,6 @@ export default {
 		nodeResolve({ preferBuiltins: true, browser: true }),
 		commonjs(),
 		json(),
+		nodePolyfills(),
 	],
 };

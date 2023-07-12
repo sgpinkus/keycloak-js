@@ -86,7 +86,7 @@
         },
         urls() {
           return {
-            login: kc.getLoginUrl(),
+            login: kc.getLoginUrl({ pkceMethod: 'S256' }),
             logout: kc.getLogoutUrl(),
             register: kc.getRegisterUrl(),
             account: kc.getAccountUrl(),
@@ -102,7 +102,7 @@
       },
       methods: {
         login() {
-          window.location = kc.getLoginUrl();
+          window.location = kc.getLoginUrl({ pkceMethod: 'S256' });
         },
         logout() {
           window.location = kc.getLogoutUrl();

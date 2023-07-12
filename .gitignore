@@ -5,3 +5,4 @@ node_modules/
 sample-app/index.min.js
 .config/
 .node_repl_history
+.npmrc
