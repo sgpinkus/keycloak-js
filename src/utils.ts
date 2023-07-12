@@ -1,6 +1,4 @@
-import { sha256 } from 'js-sha256';
-import base64Js from 'base64-js';
-
+import sha from 'sha.js';
 
 export function createUUID() {
     const hexDigits = '0123456789abcdef';
@@ -28,14 +26,12 @@ function generateRandomString(len: number, alphabet: string){
 export function generatePkceChallenge(pkceMethod: 'S256', codeVerifier: string) {
   switch (pkceMethod) {
     // The use of the "plain" method is considered insecure and therefore not supported.
+    // shajs may use Buffer polyfill which may not support 'base64url' encoding so do ourselves.
     case 'S256': {
-      // hash codeVerifier, then encode as url-safe base64 without padding
-      const hashBytes = new Uint8Array(sha256.arrayBuffer(codeVerifier));
-      const encodedHash = base64Js.fromByteArray(hashBytes)
-          .replace(/\+/g, '-')
-          .replace(/\//g, '_')
-          .replace(/=/g, '');
-      return encodedHash;
+      return sha('sha256').update(codeVerifier).digest('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
     }
     default:
       throw new Error('Invalid value for pkceMethod');

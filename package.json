@@ -17,9 +17,9 @@
     "_build-tsc": "tsc",
     "_build-watch": "rollup -w --config rollup.config.mjs",
     "_build": "rollup --config rollup.config.mjs",
+    "build-watch": "npm-run-all clean -p _build-watch",
     "build": "npm-run-all clean _build",
-    "clean": "rm -rf dist/*",
-    "dev": "npm-run-all clean -p _build-watch",
+    "clean": "rm -rf dist/* sample-app/index.min.js",
     "lint": "eslint src/",
     "prepare": "npm run build",
     "test": "TS_NODE_PROJECT=tsconfig.node.json ts-node src/test.ts"
@@ -32,8 +32,7 @@
   },
   "dependencies": {
     "axios": "^1.4.0",
-    "base64-js": "^1.5.1",
-    "js-sha256": "^0.9.0"
+    "sha.js": "^2.4.11"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.2",
@@ -42,6 +41,7 @@
     "@rollup/plugin-terser": "^0.4.3",
     "@rollup/plugin-typescript": "^11.1.2",
     "@types/node": "^18.11.18",
+    "@types/sha.js": "^2.4.0",
     "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
@@ -49,6 +49,7 @@
     "nodemon": "^2.0.22",
     "npm-run-all": "^4.1.5",
     "rollup": "^3.26.0",
+    "rollup-plugin-polyfill-node": "^0.12.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.6.0",
     "typescript": "^4.9.5"
