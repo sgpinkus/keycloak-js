@@ -158,7 +158,7 @@ export class Keycloak {
       url += '&claims=' + encodeURIComponent(claimsParameter);
     }
     if (options.pkceMethod) {
-      const codeVerifier = generateCodeVerifier(96);
+      const codeVerifier = generateCodeVerifier();
       callbackState.pkceCodeVerifier = codeVerifier;
       const pkceChallenge = generatePkceChallenge(options.pkceMethod, codeVerifier);
       url += '&code_challenge=' + pkceChallenge;
