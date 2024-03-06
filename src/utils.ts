@@ -10,7 +10,8 @@ export function createUUID() {
     return uuid;
 }
 
-export function generateCodeVerifier(len: number) {
+// Must be between 43-128 chars.
+export function generateCodeVerifier(len = 96) {
   return generateRandomString(len, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
 }
 
