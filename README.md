@@ -1,6 +1,5 @@
 # KEYCLOCK-JS-SIMPLE
-A simpler less stateful replacement for the official [keycloak-js][1] adapter. Only supports code authentication flow (since implicit is deprecated).
-
+A simpler, less stateful, API compatibl-ish replacement for the official [keycloak-js][1] adapter. Only supports code authentication flow (since implicit is deprecated).
 
 # INSTALLATION
 

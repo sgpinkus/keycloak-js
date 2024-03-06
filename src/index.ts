@@ -273,7 +273,7 @@ async function processCodeFlowCallbackUrl(
   const storedState = stateStore.get(state);
   if (!newUrl) throw new Error(); // Type assertion.
   if (!storedState) {
-    throw new CallbackValidationError('No stored state matching callback not found', newUrl);
+    throw new NoMatchCallbackValidationError('No stored state matching callback not found', newUrl);
   }
   const { prompt, nonce: storedNonce, pkceCodeVerifier, redirectUri } = storedState;
 
@@ -418,7 +418,7 @@ function parseCodeFlowCallbackUrl(url: string, responseMode: KcResponseMode): Ca
       newUrl += '#' + parsed.remainingParamsString;
     }
   }
-  return  { ...parsed?.oauthParams, newUrl };
+  return { ...parsed?.oauthParams, newUrl };
 }
 
 class AuthenticationServerError extends Error {
@@ -434,6 +434,13 @@ class CallbackValidationError extends Error {
     this.newUrl = newUrl;
   }
 }
+
+class NoMatchCallbackValidationError extends CallbackValidationError {
+  constructor(message: string, public newUrl: string) {
+    super(message, newUrl);
+  }
+}
+
 
 class TokenValidationError extends Error {
 }
