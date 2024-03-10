@@ -34,7 +34,7 @@ services:
       retries: 1
       start_period: 2s
   keycloak:
-    image: docker.io/bitnami/keycloak:latest
+    image: bitnami/keycloak:21.1.2
     depends_on:
       - postgres
     environment:
@@ -50,7 +50,7 @@ services:
     volumes:
       - ./keycloak-init/:/keycloak-init/
   keycloak_init:
-    image: docker.io/bitnami/keycloak:latest
+    image: bitnami/keycloak:21.1.2
     depends_on:
       keycloak:
         condition: service_healthy
