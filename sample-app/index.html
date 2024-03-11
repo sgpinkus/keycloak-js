@@ -72,6 +72,7 @@
       clientId: 'testing',
     };
     const kc = new keycloakjs.Keycloak(config);
+    const loginOptions = { pkceMethod: 'S256', scope: 'profile' };
     let refreshTimerId = 0;
 
     const App = defineComponent({
@@ -86,7 +87,7 @@
         },
         urls() {
           return {
-            login: kc.getLoginUrl({ pkceMethod: 'S256' }),
+            login: kc.getLoginUrl(loginOptions),
             logout: kc.getLogoutUrl(),
             register: kc.getRegisterUrl(),
             account: kc.getAccountUrl(),
@@ -102,7 +103,7 @@
       },
       methods: {
         login() {
-          window.location = kc.getLoginUrl({ pkceMethod: 'S256' });
+          window.location = kc.getLoginUrl(loginOptions);
         },
         logout() {
           window.location = kc.getLogoutUrl();

@@ -1,7 +1,7 @@
 import { describe } from 'mocha';
 import { expect } from 'chai';
 import crypto from 'node:crypto';
-import { Keycloak, MockStorage } from './index';
+import { GetLoginUrlOptions, Keycloak, MockStorage } from './index';
 import { createUUID, generateCodeVerifier, generatePkceChallenge } from './utils';
 
 const config = {
@@ -25,7 +25,7 @@ describe('Utils', function() {
 });
 
 describe('Keycloak Instance', function() {
-  it('should give an object that build keycloak oAuth URLs', function() {
+  it('should give an object that builds keycloak oAuth URLs', function() {
     const kc = new Keycloak(config, new MockStorage());
     expect(kc.getRealmUrl()).equals('http://localhost:3001/realms/testing');
     const loginUrl = new URL('', kc.getLoginUrl());
@@ -42,5 +42,24 @@ describe('Keycloak Instance', function() {
     expect(kc.getLogoutUrl()).to.match(RegExp(`^${kc.getRealmUrl()}/protocol`));
     expect(kc.getAccountUrl()).to.match(RegExp(`^${kc.getRealmUrl()}/account`));
     expect(kc.getRegisterUrl()).to.match(RegExp(`^${kc.getRealmUrl()}/protocol`));
+  });
+  it('should set openid scope in login URL when no scope', function() {
+    const kc = new Keycloak(config, new MockStorage());
+    const loginUrl = new URL(kc.getLoginUrl());
+    const params = Object.fromEntries(loginUrl.searchParams);
+    expect(params.scope.split(' ')  ).deep.equals(['openid']);
+  });
+  it('should add openid scope to login URL when custom scopes', function() {
+    const kc = new Keycloak(config, new MockStorage());
+    const loginUrl = new URL(kc.getLoginUrl({ pkceMethod: 'S256', scope: 'profile' }));
+    const params = Object.fromEntries(loginUrl.searchParams);
+    expect(params.scope.split(' ')  ).deep.equals(['openid', 'profile']);
+  });
+  it('should have pkce', function() {
+    const kc = new Keycloak(config, new MockStorage());
+    const loginUrl = new URL(kc.getLoginUrl({ pkceMethod: 'S256', scope: 'profile' }));
+    const params = Object.fromEntries(loginUrl.searchParams);
+    expect(params.code_challenge_method).equals('S256');
+    expect(typeof params.code_challenge).equals('string');
   });
 });

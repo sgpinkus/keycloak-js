@@ -117,7 +117,7 @@ export class Keycloak {
       callbackState.prompt = options.prompt;
     }
     if (options.scope) {
-      if (scope.indexOf('openid') !== -1) {
+      if (options.scope.indexOf('openid') !== -1) {
         scope = options.scope;
       } else {
         scope = 'openid ' + options.scope;
