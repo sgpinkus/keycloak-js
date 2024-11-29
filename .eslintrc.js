@@ -38,5 +38,6 @@ module.exports = {
       'warn',
       { vars: 'all', args: 'all', argsIgnorePattern: '^_|this', ignoreRestSiblings: false },
     ],
+    '@typescript-eslint/no-explicit-any': 0,
   },
 };

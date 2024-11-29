@@ -16,8 +16,8 @@ export interface CallbackState {
 }
 
 export interface CallbackStorage {
-  get(state: string): CallbackState | null;
-  add(state: CallbackState): void;
+  get(_state: string): CallbackState | null;
+  add(_state: CallbackState): void;
 }
 
 export class LocalStorage implements CallbackStorage {
@@ -106,7 +106,7 @@ export class CookieStorage implements CallbackStorage {
 }
 
 export class MockStorage implements CallbackStorage {
-  private data = {};
+  private data: Record<string, any> = {};
 
   add(state: CallbackState) {
     this.data[state.state] = state;

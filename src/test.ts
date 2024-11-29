@@ -1,7 +1,7 @@
 import { describe } from 'mocha';
 import { expect } from 'chai';
 import crypto from 'node:crypto';
-import { GetLoginUrlOptions, Keycloak, MockStorage } from './index';
+import { Keycloak, MockStorage } from './index';
 import { createUUID, generateCodeVerifier, generatePkceChallenge } from './utils';
 
 const config = {

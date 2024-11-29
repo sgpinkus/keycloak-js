@@ -15,7 +15,7 @@
     "removeComments": false,
     "sourceMap": false,
     "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
+    "resolveJsonModule": true,
     "target": "ES6"
   },
   "compileOnSave": true,
