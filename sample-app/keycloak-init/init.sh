@@ -5,6 +5,7 @@ echo "Setting up keycloak realms and clients."
 cd $(dirname "${BASH_SOURCE[0]:-$0}")
 
 realm="testing"
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/keycloak/bin
 
 cleanup() {
   rm -f /tmp/kc.conf
@@ -21,9 +22,9 @@ get_user_id() {
 
 # Using --noconfig cause credentials error when working with other realms so just using the cred config way.
 kcadm.sh config credentials \
-  --server "http://$KEYCLOAK_HOST:$KEYCLOAK_HTTP_PORT" \
+  --server "http://$KC_HOSTNAME:$KC_HTTP_PORT" \
   --realm master \
-  --user "$KEYCLOAK_ADMIN_USER" --password "$KEYCLOAK_ADMIN_PASSWORD" \
+  --user "$KEYCLOAK_ADMIN" --password "$KEYCLOAK_ADMIN_PASSWORD" \
   --config /tmp/kc.conf
 
 if ! realm_exists "${realm}"; then
