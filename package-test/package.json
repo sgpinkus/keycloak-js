@@ -1,0 +1,6 @@
+{
+  "name": "keycloak-js-simple-test",
+  "dependencies": {
+    "@sgpinkus/keycloak-js": "file:sgpinkus-keycloak-js-1.0.10.tgz"
+  }
+}

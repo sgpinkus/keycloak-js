@@ -27,7 +27,8 @@ if(!response) {
   setMyTokens(response);
 }
 
-// Do your own work to verify and manage token. Resource servers receiving token must validate ...
+// Do your own work to verify and manage token. Resource servers receiving
+// token must also validate - use '@sgpinkus/keycloak-js/validate' on backend.
 function setMyTokens(tokens) {
   const { iatLocal } = tokens;
   const { exp, iat } = tokens.accessTokenParsed;
